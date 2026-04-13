@@ -8,9 +8,9 @@ import { cn } from "@/lib/utils"
 
 const NAV_LINKS = [
     { href: '/dashboard', label: 'Dashboard', icon: '🏠' },
-  { href: '/tasks', label: 'Tareas de hoy', icon: '✅' },
-  { href: '/progress', label: 'Progreso', icon: '📊' },
-  { href: '/life-wheel', label: 'Rueda de vida', icon: '🎯' }, 
+  { href: '/tasks', label: 'Today\'s tasks', icon: '✅' },
+  { href: '/progress', label: 'Progress', icon: '📊' },
+  { href: '/life-wheel', label: 'Life Wheel', icon: '🎯' }, 
 ]
 
 

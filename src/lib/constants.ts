@@ -7,14 +7,14 @@ export const LIFE_AREAS: {
     color: string
     emoji: string
 }[] = [
-  { key: 'health',        label: 'Salud',       color: '#4ade80', emoji: '💪' },
-  { key: 'work',          label: 'Trabajo',     color: '#60a5fa', emoji: '💼' },
-  { key: 'family',        label: 'Familia',     color: '#f97316', emoji: '👨‍👩‍👧' },
-  { key: 'friends',       label: 'Amigos',      color: '#a78bfa', emoji: '👫' },
-  { key: 'finances',      label: 'Finanzas',    color: '#fbbf24', emoji: '💰' },
-  { key: 'growth',        label: 'Crecimiento', color: '#34d399', emoji: '🌱' },
-  { key: 'leisure',       label: 'Ocio',        color: '#f472b6', emoji: '🎯' },
-  { key: 'relationships', label: 'Amor',        color: '#fb7185', emoji: '❤️' },
+  { key: 'health',        label: 'Health',        color: '#4ade80', emoji: '💪' },
+  { key: 'work',          label: 'Work',          color: '#60a5fa', emoji: '💼' },
+  { key: 'family',        label: 'Family',        color: '#f97316', emoji: '👨‍👩‍👧' },
+  { key: 'friends',       label: 'Friends',       color: '#a78bfa', emoji: '👫' },
+  { key: 'finances',      label: 'Finances',      color: '#fbbf24', emoji: '💰' },
+  { key: 'growth',        label: 'Growth',        color: '#34d399', emoji: '🌱' },
+  { key: 'leisure',       label: 'Leisure',       color: '#f472b6', emoji: '🎯' },
+  { key: 'relationships', label: 'Relationships', color: '#fb7185', emoji: '❤️' },
 ]
 
 export const XP_VALUES = {
@@ -26,11 +26,11 @@ export const XP_VALUES = {
 }
 
 export const LEVELS = [
-    { level: 1, min_xp: 0,    label: 'Principiante' },
-  { level: 2, min_xp: 100,  label: 'Aprendiz' },
-  { level: 3, min_xp: 300,  label: 'Constante' },
-  { level: 4, min_xp: 600,  label: 'Disciplinado' },
-  { level: 5, min_xp: 1000, label: 'Maestro' },
+    { level: 1, min_xp: 0,    label: 'Beginner' },
+  { level: 2, min_xp: 100,  label: 'Apprentice' },
+  { level: 3, min_xp: 300,  label: 'Consistent' },
+  { level: 4, min_xp: 600,  label: 'Disciplined' },
+  { level: 5, min_xp: 1000, label: 'Master' },
 ]
 
 export const MOTIVATIONAL_MESSAGES = [
