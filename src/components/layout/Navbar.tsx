@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils"
 const NAV_LINKS = [
     { href: '/dashboard', label: 'Dashboard', icon: '🏠' },
   { href: '/tasks', label: 'Tasks', icon: '✅' },
+  { href: '/habits', label: 'My Habits', icon: '⭐' },
   { href: '/progress', label: 'Progress', icon: '📊' },
   { href: '/life-wheel', label: 'Life Wheel', icon: '⚖️' },
 ]
