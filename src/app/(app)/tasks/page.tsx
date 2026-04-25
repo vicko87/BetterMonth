@@ -1,64 +1,64 @@
 'use client'
 
-import { useState } from "react"
-import { PageWrapper } from "@/components/layout/PageWrapper"
-import { Card } from "@/components/ui/Card"
-import { Badge } from "@/components/ui/Badge"
-import { cn } from "@/lib/utils"
-
-
-
-
-const MOCK_TASKS = [
-    { id: '1', area: 'work',   color: '#60a5fa', label: 'Work',    description: 'Write 500 words in English',        completed: false },
-  { id: '2', area: 'health', color: '#4ade80', label: 'Health',  description: 'Walk 8000 steps',                   completed: false },
-  { id: '3', area: 'growth', color: '#34d399', label: 'Growth',  description: 'Read 20 pages',                     completed: true  },
-]
-
+import { useTasks } from '@/hooks/useTasks'
+import { PageWrapper } from '@/components/layout/PageWrapper'
+import { Card } from '@/components/ui/Card'
+import { LIFE_AREAS } from '@/lib/constants'
 
 export default function TasksPage() {
-  const [tasks, setTasks] = useState(MOCK_TASKS)
+  const { tasks, loading, toggleTask } = useTasks()
 
-  function toggleTask(id: string) {
-    setTasks((prev) =>
-        prev.map((task) =>
-            task.id === id ? { ...task, completed: !task.completed } : task
-        )
-    )
-}
+  const completed = tasks.filter((t) => t.completed).length
+  const total = tasks.length
 
-const completed = tasks.filter((t) => t.completed).length
-return (
+  return (
     <PageWrapper>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-white">Today&apos;s tasks</h1>
-        <p className="text-white/40">{completed}/{tasks.length} completed</p>
+        <p className="text-white/40">
+          {loading ? 'Loading...' : `${completed} of ${total} completed`}
+        </p>
       </div>
 
+      {!loading && tasks.length === 0 && (
+        <Card>
+          <p className="text-white/40 text-sm">No tasks today. Add habits first!</p>
+        </Card>
+      )}
+
       <div className="flex flex-col gap-3">
-        {tasks.map((task) => (
-          <Card key={task.id} className={cn(task.completed && 'opacity-50')}>
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => toggleTask(task.id)}
-                className={cn(
-                  'flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 transition-all',
-                  task.completed
-                    ? 'border-violet-500 bg-violet-500 text-white'
-                    : 'border-white/20 hover:border-violet-400'
-                )}
-              >
-                {task.completed && <span className="text-sm">✓</span>}
-              </button>
-              <div className="flex-1">
-                <p className={cn('text-sm font-medium', task.completed ? 'text-white/30 line-through' : 'text-white')}>
-                  {task.description}
-                </p>
-              </div>
-              <Badge label={task.label} color={task.color} />
-            </div>
-          </Card>
-        ))}
+        {tasks.map((task) => {
+          const lifeArea = LIFE_AREAS.find((a) => a.key === task.habits?.area)
+          return (
+            <button
+              key={task.id}
+              onClick={() => toggleTask(task.id, task.completed)}
+              className="w-full text-left"
+            >
+              <Card className={task.completed ? 'opacity-50' : ''}>
+                <div className="flex items-center gap-4">
+                  <div
+                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                      task.completed
+                        ? 'bg-violet-500 border-violet-500'
+                        : 'border-white/30'
+                    }`}
+                  >
+                    {task.completed && <span className="text-white text-xs">✓</span>}
+                  </div>
+                  <div>
+                    <p className={`font-medium ${task.completed ? 'line-through text-white/40' : 'text-white'}`}>
+                      {task.habits?.title}
+                    </p>
+                    <p className="text-xs text-white/40">
+                      {lifeArea?.emoji} {lifeArea?.label}
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            </button>
+          )
+        })}
       </div>
     </PageWrapper>
   )
