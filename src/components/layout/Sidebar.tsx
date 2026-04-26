@@ -1,8 +1,9 @@
 'use client'
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { supabase } from "@/lib/supabaseClient"
 
 
 
@@ -17,6 +18,13 @@ const NAV_LINKS = [
 
 export function Sidebar() {
     const pathname = usePathname()
+    const router = useRouter()
+
+    async function handleLogout() {
+       await supabase.auth.signOut()
+       router.push('/login')
+    }
+
     return (
          <aside className="hidden md:flex flex-col w-60 min-h-screen border-r border-white/10 bg-black/40 px-4 py-8 backdrop-blur-md">
       <div className="mb-10 px-2">
@@ -40,6 +48,15 @@ export function Sidebar() {
           </Link>
         ))}
       </nav>
+        <div className="mt-auto">
+        <button
+          onClick={handleLogout}
+          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-white/50 transition-colors hover:bg-white/5 hover:text-white"
+        >
+          <span className="text-lg">🚪</span>
+          Log out
+        </button>
+      </div>
     </aside>
   )
 }
