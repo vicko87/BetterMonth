@@ -102,13 +102,20 @@ export default function HabitsPage() {
           {localHabits.map((habit) => {
             const lifeArea = LIFE_AREAS.find((a) => a.key === habit.area)
             return (
-              <Card key={habit.id}>
+              <Card key={habit.id} className="overflow-hidden">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <span className="text-2xl">{lifeArea?.emoji ?? '⭐'}</span>
+                    <div
+                      className="flex h-10 w-10 items-center justify-center rounded-xl text-xl flex-shrink-0"
+                      style={{ backgroundColor: `${lifeArea?.color}20`, border: `1px solid ${lifeArea?.color}40` }}
+                    >
+                      {lifeArea?.emoji ?? '⭐'}
+                    </div>
                     <div>
                       <p className="text-white font-medium">{habit.title}</p>
-                      <p className="text-xs text-white/40">{lifeArea?.label ?? habit.area}</p>
+                      <p className="text-xs font-medium" style={{ color: lifeArea?.color ?? '#ffffff80' }}>
+                        {lifeArea?.label ?? habit.area}
+                      </p>
                     </div>
                   </div>
                   <button

@@ -20,6 +20,7 @@ export default function LifeWheelPage() {
 
    const chartData = LIFE_AREAS.map((area) => ({
     area: area.emoji + ' ' + area.label,
+    areaShort: area.emoji,
     value: values[area.key as keyof typeof values],
   }))
 
@@ -35,12 +36,20 @@ export default function LifeWheelPage() {
       </div>
 
       <Card className="mb-6 bg-[#0f0f1a] border-white/10">
-        <ResponsiveContainer width="100%" height={450}>
-          <RadarChart data={chartData}>
+        <ResponsiveContainer width="100%" height={320}>
+          <RadarChart data={chartData} outerRadius="65%">
             <PolarGrid stroke="rgba(255,255,255,0.1)" />
             <PolarAngleAxis
               dataKey="area"
-              tick={{ fill: '#c4b5fd', fontSize: 15, fontWeight: 700 }}
+              tick={({ x, y, payload, index }) => {
+                const item = LIFE_AREAS[index]
+                return (
+                  <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fill="#c4b5fd" fontSize={12} fontWeight={600}>
+                    <tspan x={x} dy="-0.4em">{item?.emoji}</tspan>
+                    <tspan x={x} dy="1.3em" fontSize={10} fill="#a78bfa">{item?.label}</tspan>
+                  </text>
+                )
+              }}
             />
             <Radar
               dataKey="value"

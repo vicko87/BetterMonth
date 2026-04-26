@@ -1,9 +1,8 @@
 'use client'
 
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { supabase } from "@/lib/supabaseClient"
 
 
 
@@ -13,16 +12,11 @@ const NAV_LINKS = [
   { href: '/habits', label: 'My Habits', icon: '⭐' },
   { href: '/progress', label: 'Progress', icon: '📊' },
   { href: '/life-wheel', label: 'Life Wheel', icon: '⚖️' },
+  { href: '/profile', label: 'Profile', icon: '👤' },
 ]
 
 export function Navbar() {
     const pathname = usePathname()
-    const router = useRouter()
-
-    async function handleLogout() {
-        await supabase.auth.signOut()
-        router.push('/login')
-    }
 
      return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around border-t border-white/10 bg-black/80 px-4 py-3 backdrop-blur-md md:hidden">
@@ -39,13 +33,6 @@ export function Navbar() {
           {link.label}
         </Link>
       ))}
-      <button
-        onClick={handleLogout}
-        className="flex flex-col items-center gap-1 text-xs text-white/40 transition-colors hover:text-white/70"
-      >
-        <span className="text-xl">🚪</span>
-        Log out
-      </button>
     </nav>
   )
 }
