@@ -1,32 +1,21 @@
 'use client'
 
-import { useState } from "react"
 import { PageWrapper } from "@/components/layout/PageWrapper"
 import { Card } from "@/components/ui/Card"
+import { Button } from "@/components/ui/Button"
 import { LIFE_AREAS } from "@/lib/constants"
 import { RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer } from "recharts"
-
-
-
-
-const DEFAULT_VALUES = {
-     health: 7, work: 6, family: 8, friends: 5,
-  finances: 4, growth: 7, leisure: 6, relationships: 8,
-}
-
+import { useLifeWheel } from "@/hooks/useLifeWheel"
+import { LifeArea } from "@/types"
 
 export default function LifeWheelPage() {
-   const [values, setValues] = useState(DEFAULT_VALUES)
+  const { values, loading, saving, updateValue, save } = useLifeWheel()
 
-   const chartData = LIFE_AREAS.map((area) => ({
+  const chartData = LIFE_AREAS.map((area) => ({
     area: area.emoji + ' ' + area.label,
     areaShort: area.emoji,
-    value: values[area.key as keyof typeof values],
+    value: values[area.key as LifeArea],
   }))
-
-  function updateValue(key: string, value: number) {
-    setValues((prev) => ({ ...prev, [key]: value }))
-  }
 
   return (
     <PageWrapper>
@@ -35,13 +24,15 @@ export default function LifeWheelPage() {
         <p className="text-white/40">Rate each area from 1 to 10</p>
       </div>
 
+      {loading && <p className="text-white/40 text-sm mb-4">Loading...</p>}
+
       <Card className="mb-6 bg-[#0f0f1a] border-white/10">
         <ResponsiveContainer width="100%" height={320}>
           <RadarChart data={chartData} outerRadius="65%">
             <PolarGrid stroke="rgba(255,255,255,0.1)" />
             <PolarAngleAxis
               dataKey="area"
-              tick={({ x, y, payload, index }) => {
+              tick={({ x, y, index }) => {
                 const item = LIFE_AREAS[index]
                 return (
                   <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fill="#c4b5fd" fontSize={12} fontWeight={600}>
@@ -71,19 +62,25 @@ export default function LifeWheelPage() {
                 <p className="text-sm font-medium text-white">{area.label}</p>
               </div>
               <span className="text-lg font-bold" style={{ color: area.color }}>
-                {values[area.key as keyof typeof values]}
+                {values[area.key as LifeArea]}
               </span>
             </div>
             <input
               type="range"
               min={1}
               max={10}
-              value={values[area.key as keyof typeof values]}
-              onChange={(e) => updateValue(area.key, Number(e.target.value))}
+              value={values[area.key as LifeArea]}
+              onChange={(e) => updateValue(area.key as LifeArea, Number(e.target.value))}
               className="w-full accent-violet-500"
             />
           </Card>
         ))}
+      </div>
+
+      <div className="mt-6">
+        <Button size="lg" onClick={save} disabled={saving || loading}>
+          {saving ? 'Saving...' : 'Save changes'}
+        </Button>
       </div>
     </PageWrapper>
   )
