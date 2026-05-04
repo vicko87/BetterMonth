@@ -1,28 +1,48 @@
 'use client'
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/Button"
 import { LIFE_AREAS } from "@/lib/constants"
 import { LifeArea } from "@/types"
 import { cn } from "@/lib/utils"
-
-
+import { supabase } from "@/lib/supabaseClient"
 
 export default function OnboardingPage() {
+  const router = useRouter()
   const [selected, setSelected] = useState<LifeArea[]>([])
+  const [loading, setLoading] = useState(false)
 
   function toggleArea(area: LifeArea) {
     setSelected((prev) =>
-        prev.includes(area)
-     ? prev.filter((a) => a !== area)
-      : prev.length < 3
+      prev.includes(area)
+        ? prev.filter((a) => a !== area)
+        : prev.length < 3
         ? [...prev, area]
         : prev
     )
-}
+  }
 
-    return (
-         <div className="flex min-h-screen flex-col items-center justify-center bg-linear-to-br from-[#080810] via-violet-950/30 to-[#080810] p-6">
+  async function handleStart() {
+    if (selected.length === 0) return
+    setLoading(true)
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      await supabase
+        .from('user_profiles')
+        .upsert({
+          user_id: user.id,
+          focus_areas: selected,
+          onboarding_completed: true,
+        }, { onConflict: 'user_id' })
+    }
+
+    router.push('/dashboard')
+  }
+
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center bg-linear-to-br from-[#080810] via-violet-950/30 to-[#080810] p-6">
       <div className="w-full max-w-lg">
         <div className="mb-8 text-center">
           <h1 className="text-4xl font-bold text-white mb-2">BetterMonth</h1>
@@ -54,9 +74,10 @@ export default function OnboardingPage() {
         <Button
           size="lg"
           className="w-full"
-          disabled={selected.length === 0}
+          disabled={selected.length === 0 || loading}
+          onClick={handleStart}
         >
-          Start my 30-day challenge ({selected.length}/3)
+          {loading ? 'Starting...' : `Start my 30-day challenge (${selected.length}/3)`}
         </Button>
       </div>
     </div>
