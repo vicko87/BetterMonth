@@ -32,10 +32,10 @@ export default function OnboardingPage() {
       await supabase
         .from('user_profiles')
         .upsert({
-          user_id: user.id,
+          id: user.id,
           focus_areas: selected,
           onboarding_completed: true,
-        }, { onConflict: 'user_id' })
+        }, { onConflict: 'id' })
     }
 
     router.push('/dashboard')
