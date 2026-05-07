@@ -9,11 +9,10 @@ import { useLifeWheel } from "@/hooks/useLifeWheel"
 import { LifeArea } from "@/types"
 
 export default function LifeWheelPage() {
-  const { values, loading, saving, updateValue, save } = useLifeWheel()
+  const { values, autoAreas, loading, saving, updateValue, save } = useLifeWheel()
 
   const chartData = LIFE_AREAS.map((area) => ({
     area: area.emoji + ' ' + area.label,
-    areaShort: area.emoji,
     value: values[area.key as LifeArea],
   }))
 
@@ -21,10 +20,10 @@ export default function LifeWheelPage() {
     <PageWrapper>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-white">Life Wheel</h1>
-        <p className="text-white/40">Rate each area from 1 to 10</p>
+        <p className="text-white/40">Auto from habits · Manual for the rest</p>
       </div>
 
-      {loading && <p className="text-white/40 text-sm mb-4">Loading...</p>}
+      {loading && <p className="text-white/40 text-sm mb-4">Calculating...</p>}
 
       <Card className="mb-6 bg-[#0f0f1a] border-white/10">
         <ResponsiveContainer width="100%" height={320}>
@@ -54,32 +53,49 @@ export default function LifeWheelPage() {
       </Card>
 
       <div className="grid gap-3 md:grid-cols-2">
-        {LIFE_AREAS.map((area) => (
-          <Card key={area.key}>
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <span>{area.emoji}</span>
-                <p className="text-sm font-medium text-white">{area.label}</p>
+        {LIFE_AREAS.map((area) => {
+          const val = values[area.key as LifeArea]
+          const isAuto = autoAreas.includes(area.key as LifeArea)
+          return (
+            <Card key={area.key}>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span>{area.emoji}</span>
+                  <p className="text-sm font-medium text-white">{area.label}</p>
+                  {isAuto && (
+                    <span className="text-xs text-white/30 border border-white/10 rounded px-1">auto</span>
+                  )}
+                </div>
+                <span className="text-lg font-bold" style={{ color: area.color }}>
+                  {val}/10
+                </span>
               </div>
-              <span className="text-lg font-bold" style={{ color: area.color }}>
-                {values[area.key as LifeArea]}
-              </span>
-            </div>
-            <input
-              type="range"
-              min={1}
-              max={10}
-              value={values[area.key as LifeArea]}
-              onChange={(e) => updateValue(area.key as LifeArea, Number(e.target.value))}
-              className="w-full accent-violet-500"
-            />
-          </Card>
-        ))}
+
+              {isAuto ? (
+                <div className="h-2 rounded-full bg-white/10">
+                  <div
+                    className="h-2 rounded-full transition-all duration-500"
+                    style={{ width: `${val * 10}%`, backgroundColor: area.color }}
+                  />
+                </div>
+              ) : (
+                <input
+                  type="range"
+                  min={1}
+                  max={10}
+                  value={val}
+                  onChange={(e) => updateValue(area.key as LifeArea, Number(e.target.value))}
+                  className="w-full accent-violet-500"
+                />
+              )}
+            </Card>
+          )
+        })}
       </div>
 
       <div className="mt-6">
         <Button size="lg" onClick={save} disabled={saving || loading}>
-          {saving ? 'Saving...' : 'Save changes'}
+          {saving ? 'Saving...' : 'Save manual values'}
         </Button>
       </div>
     </PageWrapper>
