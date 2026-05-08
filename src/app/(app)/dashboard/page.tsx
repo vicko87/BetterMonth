@@ -9,11 +9,13 @@ import { supabase } from "@/lib/supabaseClient"
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { LIFE_AREAS } from "@/lib/constants"
+import { useXP } from "@/hooks/useXP"
 
 export default function DashboardPage() {
     const { habits, loading: habitsLoading } = useHabits()
-    const { streak, todayProgress } = useStreak()
+    const { todayProgress } = useStreak()
     const { tasks } = useTasks()
+    const { xp, level, levelLabel, xpToNext } = useXP()
     const [userName, setUserName] = useState('')
 
     useEffect(() => {
@@ -48,13 +50,25 @@ export default function DashboardPage() {
 
             <div className="grid gap-4 md:grid-cols-3">
                 <Card>
-                    <div className="flex items-center gap-2">
-                        <span className="text-2xl">🔥</span>
+                    <div className="flex items-center gap-3 mb-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-violet-500/20 text-lg">
+                            ⭐
+                        </div>
                         <div>
-                            <p className="text-2xl font-bold text-white">{streak}</p>
-                            <p className="text-xs text-white/40">day streak</p>
+                            <p className="text-xs text-white/40 uppercase tracking-widest">Level {level}</p>
+                            <p className="text-base font-bold text-white">{levelLabel}</p>
                         </div>
                     </div>
+                    <div className="relative h-3 rounded-full bg-white/10 overflow-hidden">
+                        <div
+                            className="h-3 rounded-full bg-linear-to-r from-violet-600 to-violet-400 transition-all duration-700"
+                            style={{ width: `${Math.min((xp / xpToNext) * 100, 100)}%` }}
+                        />
+                        <span className="absolute inset-0 flex items-center justify-center text-[10px] font-semibold text-white/70">
+                            {xp} / {xpToNext} XP
+                        </span>
+                    </div>
+                    <p className="text-xs text-white/30 mt-2">{xpToNext - xp} XP to level {level + 1}</p>
                 </Card>
 
                 <Card>
