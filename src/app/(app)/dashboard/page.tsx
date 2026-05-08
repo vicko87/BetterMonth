@@ -10,12 +10,14 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { LIFE_AREAS } from "@/lib/constants"
 import { useXP } from "@/hooks/useXP"
+import { useBadges } from "@/hooks/useBadges"
 
 export default function DashboardPage() {
     const { habits, loading: habitsLoading } = useHabits()
     const { todayProgress } = useStreak()
     const { tasks } = useTasks()
     const { xp, level, levelLabel, xpToNext } = useXP()
+    const { badges } = useBadges()
     const [userName, setUserName] = useState('')
 
     useEffect(() => {
@@ -131,6 +133,30 @@ export default function DashboardPage() {
                         </Link>
                     </div>
                 )}
+            </div>
+
+            <div className="mt-6">
+                <h2 className="text-lg font-semibold text-white mb-4">Achievements</h2>
+                <div className="flex flex-col gap-2">
+                    {badges.map((badge) => (
+                        <Card key={badge.id} className={badge.unlocked ? '' : 'opacity-40'}>
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-xl shrink-0">
+                                    {badge.emoji}
+                                </div>
+                                <div>
+                                    <p className={`text-sm font-semibold ${badge.unlocked ? 'text-white' : 'text-white/40'}`}>
+                                        {badge.title}
+                                    </p>
+                                    <p className="text-xs text-white/40">{badge.description}</p>
+                                </div>
+                                {badge.unlocked && (
+                                    <span className="ml-auto text-xs font-medium text-violet-400">✓ Unlocked</span>
+                                )}
+                            </div>
+                        </Card>
+                    ))}
+                </div>
             </div>
         </PageWrapper>
     )
