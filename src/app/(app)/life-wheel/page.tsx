@@ -53,41 +53,57 @@ export default function LifeWheelPage() {
       </Card>
 
       <div className="grid gap-3 md:grid-cols-2">
-        {LIFE_AREAS.map((area) => {
+        <div className="md:col-span-2">
+          <p className="text-xs text-white/40 uppercase tracking-widest mb-2">Set manually</p>
+        </div>
+        {LIFE_AREAS.filter((area) => !autoAreas.includes(area.key as LifeArea)).map((area) => {
           const val = values[area.key as LifeArea]
-          const isAuto = autoAreas.includes(area.key as LifeArea)
           return (
             <Card key={area.key}>
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <span>{area.emoji}</span>
                   <p className="text-sm font-medium text-white">{area.label}</p>
-                  {isAuto && (
-                    <span className="text-xs text-white/30 border border-white/10 rounded px-1">auto</span>
-                  )}
                 </div>
                 <span className="text-lg font-bold" style={{ color: area.color }}>
                   {val}/10
                 </span>
               </div>
+              <input
+                type="range"
+                min={1}
+                max={10}
+                value={val}
+                onChange={(e) => updateValue(area.key as LifeArea, Number(e.target.value))}
+                className="w-full accent-violet-500"
+              />
+            </Card>
+          )
+        })}
 
-              {isAuto ? (
-                <div className="h-2 rounded-full bg-white/10">
-                  <div
-                    className="h-2 rounded-full transition-all duration-500"
-                    style={{ width: `${val * 10}%`, backgroundColor: area.color }}
-                  />
+        <div className="md:col-span-2 mt-2">
+          <p className="text-xs text-white/40 uppercase tracking-widest mb-2">Auto from habits</p>
+        </div>
+        {LIFE_AREAS.filter((area) => autoAreas.includes(area.key as LifeArea)).map((area) => {
+          const val = values[area.key as LifeArea]
+          return (
+            <Card key={area.key} className="opacity-80">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span>{area.emoji}</span>
+                  <p className="text-sm font-medium text-white">{area.label}</p>
+                  <span className="text-xs text-white/30 border border-white/10 rounded px-1">auto</span>
                 </div>
-              ) : (
-                <input
-                  type="range"
-                  min={1}
-                  max={10}
-                  value={val}
-                  onChange={(e) => updateValue(area.key as LifeArea, Number(e.target.value))}
-                  className="w-full accent-violet-500"
+                <span className="text-lg font-bold" style={{ color: area.color }}>
+                  {val}/10
+                </span>
+              </div>
+              <div className="h-2 rounded-full bg-white/10">
+                <div
+                  className="h-2 rounded-full transition-all duration-500"
+                  style={{ width: `${val * 10}%`, backgroundColor: area.color }}
                 />
-              )}
+              </div>
             </Card>
           )
         })}
