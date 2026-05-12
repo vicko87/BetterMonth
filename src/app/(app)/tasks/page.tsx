@@ -4,6 +4,8 @@ import { useTasks } from '@/hooks/useTasks'
 import { PageWrapper } from '@/components/layout/PageWrapper'
 import { Card } from '@/components/ui/Card'
 import { LIFE_AREAS } from '@/lib/constants'
+import { useEffect, useRef } from 'react'
+import confetti from 'canvas-confetti'
 
 export default function TasksPage() {
   const { tasks, loading, toggleTask } = useTasks()
@@ -11,6 +13,23 @@ export default function TasksPage() {
   const completed = tasks.filter((t) => t.completed).length
   const total = tasks.length
 
+  const confettiFired = useRef(false)
+
+  useEffect(() => {
+    if(total > 0 && completed === total) {
+      if (!confettiFired.current) {
+        confettiFired.current = true
+        confetti({
+          particleCount: 120,
+          spread: 80,
+          origin: { y: 0.6 },
+          colors: ['#7c3aed', '#a78bfa', '#ffffff', '#fbbf24'],
+        })
+      }
+    } else {
+      confettiFired.current = false
+    }
+  }, [completed, total])
   return (
     <PageWrapper>
       <div className="mb-6">
