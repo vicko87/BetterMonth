@@ -12,6 +12,7 @@ const NAV_LINKS = [
   { href: '/habits', label: 'My Habits', icon: '⭐' },
   { href: '/progress', label: 'Progress', icon: '📊' },
   { href: '/life-wheel', label: 'Life Wheel', icon: '🎯' },
+  { href: '/coach', label: 'AI Coach', icon: '🤖' },
   { href: '/profile', label: 'Profile', icon: '👤' },
 ]
 
