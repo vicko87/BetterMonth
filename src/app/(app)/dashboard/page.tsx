@@ -19,6 +19,8 @@ export default function DashboardPage() {
     const { xp, level, levelLabel, xpToNext } = useXP()
     const { badges } = useBadges()
     const [userName, setUserName] = useState('')
+    const [summary, setSummary] = useState('')
+    const [summaryLoading, setSummaryLoading] = useState(false)
 
     useEffect(() => {
         async function fetchProfile() {
@@ -33,6 +35,39 @@ export default function DashboardPage() {
         }
         fetchProfile()
     }, [])
+
+    async function generateWeeklySummary() {
+        setSummaryLoading(true)
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+
+        const weekAgo = new Date()
+        weekAgo.setDate(weekAgo.getDate() - 7)
+
+        const { data: weekTasks } = await supabase
+            .from('daily_tasks')
+            .select('completed, date, habit_id')
+            .eq('user_id', user.id)
+            .gte('date', weekAgo.toISOString().split('T')[0])
+
+        const byArea = habits.map(h => {
+            const htasks = weekTasks?.filter(t => t.habit_id === h.id) ?? []
+            const done = htasks.filter(t => t.completed).length
+            return `${h.area}: ${done}/${htasks.length}`
+        }).join(', ')
+
+        const res = await fetch('/api/weekly-summary', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                habits: habits.map(h => h.title).join(', '),
+                tasks: byArea
+            })
+        })
+        const data = await res.json()
+        setSummary(data.summary)
+        setSummaryLoading(false)
+    }
 
     const activeHabits = habits.length
 
@@ -90,6 +125,26 @@ export default function DashboardPage() {
                     <p className="text-xs text-white/40 mt-1">
                         {activeHabits === 0 ? 'No habits yet' : `${activeHabits} habit${activeHabits > 1 ? 's' : ''} tracked`}
                     </p>
+                </Card>
+            </div>
+
+            <div className="mt-6">
+                <Card>
+                    <div className="flex items-center justify-between mb-3">
+                        <p className="text-sm text-white/40">Weekly Summary ✨</p>
+                        <button
+                            onClick={generateWeeklySummary}
+                            disabled={summaryLoading}
+                            className="text-xs bg-violet-600 hover:bg-violet-500 disabled:opacity-40 px-3 py-1 rounded-lg text-white transition-colors"
+                        >
+                            {summaryLoading ? 'Generating...' : '✨ Generate'}
+                        </button>
+                    </div>
+                    {summary ? (
+                        <p className="text-sm text-white/80">{summary}</p>
+                    ) : (
+                        <p className="text-xs text-white/30">Click to get your weekly AI summary</p>
+                    )}
                 </Card>
             </div>
 
