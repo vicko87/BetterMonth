@@ -50,7 +50,7 @@ export default function CoachPage() {
             const todayTotal = tasks?.length ?? 0
 
             context = `
-            Habbits: ${habits?.map((h) => `${h.title} (${h.area})`).join(', ') || 'None'}
+            Habits: ${habits?.map((h) => `${h.title} (${h.area})`).join(', ') || 'None'}
             Life Wheel: ${wheel?.map((w) => `${w.area}: ${w.value}`).join(', ') || 'No entries'}
             Today's Tasks: ${todayDone}/${todayTotal} completed
             `.trim()
