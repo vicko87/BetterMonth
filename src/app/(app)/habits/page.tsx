@@ -9,7 +9,15 @@ import { Card } from "@/components/ui/Card"
 import { LIFE_AREAS } from "@/lib/constants"
 import { Button } from "@/components/ui/Button"
 
-
+    const DAYS = [
+  { label: 'L', value: 1 },
+  { label: 'M', value: 2 },
+  { label: 'X', value: 3 },
+  { label: 'J', value: 4 },
+  { label: 'V', value: 5 },
+  { label: 'S', value: 6 },
+  { label: 'D', value: 0 },
+]
 
 export default function HabitsPage() {
     const router = useRouter()
@@ -20,14 +28,22 @@ export default function HabitsPage() {
         setLocalHabits(habits)
     }, [habits])
 
+
+
     const [title, setTitle] = useState('')
     const [area, setArea] = useState('health')
     const [saving, setSaving] = useState(false)
+    const [days, setDays] = useState<number[]>([1,2,3,4,5,6,0])
+
+function toggleDay(d: number) {
+  setDays(prev => prev.includes(d) ? prev.filter(x => x !== d) : [...prev, d])
+}
 
     async function handleDelete(id: string) {
         await supabase.from('habits').delete().eq('id', id)
         setLocalHabits((prev) => prev.filter((h) => h.id !== id))
     }
+
 
     async function handleAddHabit(e: React.FormEvent) {
         e.preventDefault()
@@ -41,6 +57,7 @@ export default function HabitsPage() {
             user_id: user.id,
             title: title.trim(),
             area,
+            days,
         }).select().single()
 
         if (newHabit) {
@@ -48,6 +65,7 @@ export default function HabitsPage() {
         }
 
         setTitle('')
+        setDays([1,2,3,4,5,6,0])
         setSaving(false)
     }
 
@@ -86,6 +104,25 @@ export default function HabitsPage() {
               ))}
             </select>
           </div>
+          <div>
+            <label className="text-xs text-white/40 mb-2 block">Days</label>
+            <div className="flex gap-2">
+              {DAYS.map(d => (
+                <button
+                  key={d.value}
+                  type="button"
+                  onClick={() => toggleDay(d.value)}
+                  className={`w-9 h-9 rounded-full text-sm font-medium transition-colors ${
+                    days.includes(d.value)
+                      ? 'bg-violet-600 text-white'
+                      : 'bg-white/5 text-white/40 border border-white/10'
+                  }`}
+                >
+                  {d.label}
+                </button>
+              ))}
+            </div>
+          </div>
           <Button size="lg" disabled={saving}>
             {saving ? 'Saving...' : 'Add habit'}
           </Button>
@@ -116,6 +153,22 @@ export default function HabitsPage() {
                       <p className="text-xs font-medium" style={{ color: lifeArea?.color ?? '#ffffff80' }}>
                         {lifeArea?.label ?? habit.area}
                       </p>
+                      {Array.isArray(habit.days) && habit.days.length > 0 && habit.days.length < 7 && (
+                        <div className="flex gap-1 mt-1">
+                          {DAYS.map(d => (
+                            <span
+                              key={d.value}
+                              className={`text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-medium ${
+                                habit.days.includes(d.value)
+                                  ? 'bg-violet-600/60 text-white'
+                                  : 'text-white/20'
+                              }`}
+                            >
+                              {d.label}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                   <button

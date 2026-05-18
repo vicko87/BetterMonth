@@ -28,18 +28,24 @@ export function useTasks() {
             if (!user) return
 
             //obtener hábitos del usuario
+            const todayDow = new Date().getDay() // 0=Dom, 1=Lun...6=Sab
             const { data: habits } = await supabase
                 .from('habits')
-                .select('id')
+                .select('id, days')
                 .eq('user_id', user.id)
 
-            if (!habits || habits.length === 0) {
+            // solo hábitos que incluyen hoy
+            const habitsToday = (habits ?? []).filter(h =>
+                !Array.isArray(h.days) || h.days.length === 0 || h.days.includes(todayDow)
+            )
+
+            if (habitsToday.length === 0) {
                 setLoading(false)
                 return
             }
 
             //crear tareas de hoy que no existen
-            const taskRows = habits.map((habit) => ({
+            const taskRows = habitsToday.map((habit) => ({
                 habit_id: habit.id,
                 user_id: user.id,
                 date: today,
@@ -62,10 +68,9 @@ export function useTasks() {
     }, [today])
 
     async function toggleTask(id: string, completed: boolean) {
-        await supabase.from
-        ('daily_tasks')
-        .update({ completed: !completed })
-        .eq('id', id)
+        await supabase.from('daily_tasks')
+            .update({ completed: !completed })
+            .eq('id', id)
 
         setTasks((prev) =>
             prev.map((t) =>

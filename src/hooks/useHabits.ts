@@ -8,6 +8,7 @@ export interface Habit {
     area: string
     frequency: string
     created_at: string
+    days: number[]
 }
 
 export function useHabits() {
