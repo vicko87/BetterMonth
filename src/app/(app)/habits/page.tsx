@@ -33,7 +33,7 @@ export default function HabitsPage() {
     const [title, setTitle] = useState('')
     const [area, setArea] = useState('health')
     const [saving, setSaving] = useState(false)
-    const [days, setDays] = useState<number[]>([1,2,3,4,5,6,0])
+    const [days, setDays] = useState<number[]>([])
 
 function toggleDay(d: number) {
   setDays(prev => prev.includes(d) ? prev.filter(x => x !== d) : [...prev, d])
@@ -65,7 +65,7 @@ function toggleDay(d: number) {
         }
 
         setTitle('')
-        setDays([1,2,3,4,5,6,0])
+        setDays([])
         setSaving(false)
     }
 
