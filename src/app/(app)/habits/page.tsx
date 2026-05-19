@@ -9,6 +9,23 @@ import { Card } from "@/components/ui/Card"
 import { LIFE_AREAS } from "@/lib/constants"
 import { Button } from "@/components/ui/Button"
 
+
+const HABIT_SUGGESTIONS = [
+  { emoji: '🧘', title: 'Meditate 10 min' },
+  { emoji: '📚', title: 'Read 20 pages' },
+  { emoji: '🏋️', title: 'Go to the gym' },
+  { emoji: '🚶', title: 'Walk 30 min' },
+  { emoji: '💧', title: 'Drink 2L water' },
+  { emoji: '📝', title: "Don't drink alcohol" },
+  { emoji: '🗣️', title: 'Practice a language' },
+  { emoji: '🥗', title: 'Balanced diet' },
+  { emoji: '💻', title: 'Study 1 hour' },
+  { emoji: '🌅', title: 'Morning stretch' },
+  { emoji: '🚫', title: 'No social media' },
+  { emoji: '👥', title: 'Meet new people' },
+  { emoji: '🌙', title: 'Sleep by 11pm' },
+]
+
     const DAYS = [
   { label: 'L', value: 1 },
   { label: 'M', value: 2 },
@@ -92,6 +109,24 @@ function toggleDay(d: number) {
               onChange={(e) => setTitle(e.target.value)}
               className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-white placeholder-white/20 outline-none focus:border-violet-500 transition-colors"
             />
+            <div className="flex flex-wrap gap-2 mt-2">
+              {HABIT_SUGGESTIONS.filter(s =>
+                !title || s.title.toLowerCase().includes(title.toLowerCase())
+              ).map((s) => (
+                <button
+                  key={s.title}
+                  type="button"
+                  onClick={() => setTitle(s.title)}
+                  className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                    title === s.title
+                      ? 'bg-violet-600 border-violet-500 text-white'
+                      : 'bg-white/5 border-white/10 text-white/50 hover:text-white hover:border-white/30'
+                  }`}
+                >
+                  {s.emoji} {s.title}
+                </button>
+              ))}
+            </div>
           </div>
           <div>
             <label className="text-xs text-white/40 mb-1 block">Life area</label>
@@ -161,46 +196,52 @@ function toggleDay(d: number) {
           {localHabits.map((habit) => {
             const lifeArea = LIFE_AREAS.find((a) => a.key === habit.area)
             return (
-              <Card key={habit.id} className="overflow-hidden">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="flex h-10 w-10 items-center justify-center rounded-xl text-xl flex-shrink-0"
-                      style={{ backgroundColor: `${lifeArea?.color}20`, border: `1px solid ${lifeArea?.color}40` }}
-                    >
-                      {lifeArea?.emoji ?? '⭐'}
-                    </div>
-                    <div>
-                      <p className="text-white font-medium">{habit.title}</p>
-                      <p className="text-xs font-medium" style={{ color: lifeArea?.color ?? '#ffffff80' }}>
-                        {lifeArea?.label ?? habit.area}
-                      </p>
-                      {Array.isArray(habit.days) && habit.days.length > 0 && habit.days.length < 7 && (
-                        <div className="flex gap-1 mt-1">
-                          {DAYS.map(d => (
-                            <span
-                              key={d.value}
-                              className={`text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-medium ${
-                                habit.days.includes(d.value)
-                                  ? 'bg-violet-600/60 text-white'
-                                  : 'text-white/20'
-                              }`}
-                            >
-                              {d.label}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => handleDelete(habit.id)}
-                    className="text-white/20 hover:text-red-400 transition-colors text-lg"
-                  >
-                    ✕
-                  </button>
-                </div>
-              </Card>
+             <Card key={habit.id} className="overflow-hidden">
+  <div className="flex items-center justify-between">
+    <div className="flex items-center gap-3">
+      <div
+        className="flex h-12 w-12 items-center justify-center rounded-xl text-2xl flex-shrink-0"
+        style={{ backgroundColor: `${lifeArea?.color}20`, border: `1px solid ${lifeArea?.color}40` }}
+      >
+        {lifeArea?.emoji ?? '⭐'}
+      </div>
+      <div>
+        <p className="text-white font-medium">{habit.title}</p>
+        <div className="flex items-center gap-2 mt-0.5">
+          <p className="text-xs font-medium" style={{ color: lifeArea?.color ?? '#ffffff80' }}>
+            {lifeArea?.label ?? habit.area}
+          </p>
+          {habit.time_of_day && (
+            <span className="text-[10px] text-white/30 bg-white/5 px-1.5 py-0.5 rounded-full">
+              {habit.time_of_day === 'morning' ? '🌅' : habit.time_of_day === 'afternoon' ? '☀️' : '🌙'}
+              {' '}{habit.time_of_day === 'morning' ? 'Morning' : habit.time_of_day === 'afternoon' ? 'Afternoon' : 'Evening'}
+            </span>
+          )}
+        </div>
+        <div className="flex gap-1 mt-1.5">
+          {DAYS.map(d => (
+            <span
+              key={d.value}
+              className={`text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-medium ${
+                !Array.isArray(habit.days) || habit.days.length === 0 || habit.days.includes(d.value)
+                  ? 'bg-violet-600/60 text-white'
+                  : 'text-white/20'
+              }`}
+            >
+              {d.label}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+    <button
+      onClick={() => handleDelete(habit.id)}
+      className="text-white/20 hover:text-red-400 transition-colors text-lg"
+    >
+      ✕
+    </button>
+  </div>
+</Card>
             )
           })}
         </div>
