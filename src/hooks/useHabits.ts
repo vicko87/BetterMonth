@@ -9,6 +9,7 @@ export interface Habit {
     frequency: string
     created_at: string
     days: number[]
+      time_of_day: string 
 }
 
 export function useHabits() {

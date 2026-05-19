@@ -34,6 +34,7 @@ export default function HabitsPage() {
     const [area, setArea] = useState('health')
     const [saving, setSaving] = useState(false)
     const [days, setDays] = useState<number[]>([])
+    const [timeOfDay, setTimeOfDay] = useState<'morning' | 'afternoon' | 'evening'>('morning')
 
 function toggleDay(d: number) {
   setDays(prev => prev.includes(d) ? prev.filter(x => x !== d) : [...prev, d])
@@ -58,6 +59,7 @@ function toggleDay(d: number) {
             title: title.trim(),
             area,
             days,
+            time_of_day: timeOfDay,
         }).select().single()
 
         if (newHabit) {
@@ -66,6 +68,7 @@ function toggleDay(d: number) {
 
         setTitle('')
         setDays([])
+        setTimeOfDay('morning')
         setSaving(false)
     }
 
@@ -119,6 +122,25 @@ function toggleDay(d: number) {
                   }`}
                 >
                   {d.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="text-xs text-white/40 mb-2 block">Franja horaria</label>
+            <div className="flex gap-2">
+              {([['morning', '🌅 Mañana'], ['afternoon', '☀️ Tarde'], ['evening', '🌙 Noche']] as const).map(([val, label]) => (
+                <button
+                  key={val}
+                  type="button"
+                  onClick={() => setTimeOfDay(val)}
+                  className={`flex-1 py-2 rounded-xl text-sm font-medium transition-colors ${
+                    timeOfDay === val
+                      ? 'bg-violet-600 text-white'
+                      : 'bg-white/5 text-white/40 border border-white/10'
+                  }`}
+                >
+                  {label}
                 </button>
               ))}
             </div>

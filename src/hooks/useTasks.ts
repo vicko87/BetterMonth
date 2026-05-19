@@ -13,6 +13,7 @@ export interface DailyTask {
     habits: {
         title: string
         area: string
+           time_of_day: string 
     }
 }
 
@@ -57,7 +58,7 @@ export function useTasks() {
             //cargar tareas de hoy con nombre del hábito
             const { data: tasksData } = await supabase
                 .from('daily_tasks')
-                .select(`*, habits (title, area)`)
+                .select(`*, habits (title,  area, time_of_day)`)
                 .eq('user_id', user.id)
                 .eq('date', today)  
 
