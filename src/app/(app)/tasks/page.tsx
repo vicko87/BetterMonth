@@ -8,9 +8,9 @@ import { useEffect, useRef, useState } from 'react'
 import confetti from 'canvas-confetti'
 
 const TIME_SLOTS = [
-  { key: 'morning', label: 'Mañana', emoji: '🌅' },
-  { key: 'afternoon', label: 'Tarde', emoji: '☀️' },
-  { key: 'evening', label: 'Noche', emoji: '🌙' },
+  { key: 'morning', label: 'Morning', emoji: '🌅' },
+  { key: 'afternoon', label: 'Afternoon', emoji: '☀️' },
+  { key: 'evening', label: 'Evening', emoji: '🌙' },
 ] as const
 
 type TimeSlot = typeof TIME_SLOTS[number]['key']
@@ -70,8 +70,8 @@ export default function TasksPage() {
   )
   const slotDone = slotTasks.filter((t) => t.completed).length
 
-  const monthLabel = today.toLocaleDateString('es-ES', { month: 'long' })
-  const dayLabel = today.toLocaleDateString('es-ES', { weekday: 'long' })
+  const monthLabel = today.toLocaleDateString('en-US', { month: 'long' })
+  const dayLabel = today.toLocaleDateString('en-US', { weekday: 'long' })
 
   return (
     <PageWrapper>
@@ -80,7 +80,7 @@ export default function TasksPage() {
         <p className="text-white/40 text-sm capitalize">{monthLabel}</p>
         <h1 className="text-3xl font-bold text-white capitalize">{dayLabel}</h1>
         <p className="text-white/40 text-sm mt-1">
-          {loading ? 'Cargando...' : `${completed} de ${total} completadas`}
+          {loading ? 'Loading...' : `${completed} of ${total} completed`}
         </p>
       </div>
 
@@ -136,7 +136,7 @@ export default function TasksPage() {
       {!loading && slotTasks.length === 0 && (
         <Card>
           <p className="text-white/40 text-sm text-center py-2">
-            Sin tareas para esta franja. ¡Añade hábitos!
+            No tasks for this slot. Add habits first!
           </p>
         </Card>
       )}
@@ -187,7 +187,7 @@ export default function TasksPage() {
       {/* Slot progress */}
       {slotTasks.length > 0 && (
         <p className="text-center text-white/30 text-xs mt-4">
-          {slotDone}/{slotTasks.length} en esta franja
+          {slotDone}/{slotTasks.length} in this slot
         </p>
       )}
     </PageWrapper>

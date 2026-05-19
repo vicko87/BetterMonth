@@ -127,9 +127,9 @@ function toggleDay(d: number) {
             </div>
           </div>
           <div>
-            <label className="text-xs text-white/40 mb-2 block">Franja horaria</label>
+            <label className="text-xs text-white/40 mb-2 block">Time of day</label>
             <div className="flex gap-2">
-              {([['morning', '🌅 Mañana'], ['afternoon', '☀️ Tarde'], ['evening', '🌙 Noche']] as const).map(([val, label]) => (
+              {([['morning', '🌅 Morning'], ['afternoon', '☀️ Afternoon'], ['evening', '🌙 Evening']] as const).map(([val, label]) => (
                 <button
                   key={val}
                   type="button"
