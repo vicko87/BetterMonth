@@ -52,6 +52,37 @@ export default function HabitsPage() {
     const [saving, setSaving] = useState(false)
     const [days, setDays] = useState<number[]>([])
     const [timeOfDay, setTimeOfDay] = useState<'morning' | 'afternoon' | 'evening'>('morning')
+    const [editingId, setEditingId] = useState<string | null>(null)
+    const [editTitle, setEditTitle] = useState('')
+    const [editArea, setEditArea] = useState('health')
+    const [editDays, setEditDays] = useState<number[]>([])
+    const [editTimeOfDay, setEditTimeOfDay] = useState<'morning' | 'afternoon' | 'evening'>('morning')
+    const [editSaving, setEditSaving] = useState(false)
+
+    function toggleEditDay(d: number) {
+        setEditDays(prev => prev.includes(d) ? prev.filter((x: number) => x !== d) : [...prev, d])
+    }
+
+    function startEdit(habit: typeof localHabits[0]) {
+        setEditingId(habit.id)
+        setEditTitle(habit.title)
+        setEditArea(habit.area)
+        setEditTimeOfDay(habit.time_of_day as 'morning' | 'afternoon' | 'evening')
+        setEditDays(habit.days ?? [])
+    }
+
+    async function handleSaveEdit(id: string) {
+        setEditSaving(true)
+        await supabase.from('habits').update({
+            title: editTitle.trim(),
+            area: editArea,
+            days: editDays,
+            time_of_day: editTimeOfDay,
+        }).eq('id', id)
+        setLocalHabits(prev => prev.map(h => h.id === id ? { ...h, title: editTitle.trim(), area: editArea, days: editDays, time_of_day: editTimeOfDay } : h))
+        setEditingId(null)
+        setEditSaving(false)
+    }
 
 function toggleDay(d: number) {
   setDays(prev => prev.includes(d) ? prev.filter(x => x !== d) : [...prev, d])
@@ -126,7 +157,7 @@ function toggleDay(d: number) {
                   {s.emoji} {s.title}
                 </button>
               ))}
-            </div>
+                </div>
           </div>
           <div>
             <label className="text-xs text-white/40 mb-1 block">Life area</label>
@@ -197,50 +228,87 @@ function toggleDay(d: number) {
             const lifeArea = LIFE_AREAS.find((a) => a.key === habit.area)
             return (
              <Card key={habit.id} className="overflow-hidden">
-  <div className="flex items-center justify-between">
-    <div className="flex items-center gap-3">
-      <div
-        className="flex h-12 w-12 items-center justify-center rounded-xl text-2xl flex-shrink-0"
-        style={{ backgroundColor: `${lifeArea?.color}20`, border: `1px solid ${lifeArea?.color}40` }}
+  {editingId === habit.id ? (
+    <div className="flex flex-col gap-3">
+      <input
+        type="text"
+        value={editTitle}
+        onChange={e => setEditTitle(e.target.value)}
+        className="w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-white text-sm outline-none focus:border-violet-500"
+      />
+      <select
+        value={editArea}
+        onChange={e => setEditArea(e.target.value)}
+        className="w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-white text-sm outline-none"
       >
-        {lifeArea?.emoji ?? '⭐'}
+        {LIFE_AREAS.map(a => (
+          <option key={a.key} value={a.key} className="bg-[#080810]">{a.emoji} {a.label}</option>
+        ))}
+      </select>
+      <div className="flex gap-1.5">
+        {DAYS.map(d => (
+          <button key={d.value} type="button" onClick={() => toggleEditDay(d.value)}
+            className={`w-8 h-8 rounded-full text-xs font-medium transition-colors ${
+              editDays.includes(d.value) ? 'bg-violet-600 text-white' : 'bg-white/5 text-white/40 border border-white/10'
+            }`}>{d.label}</button>
+        ))}
       </div>
-      <div>
-        <p className="text-white font-medium">{habit.title}</p>
-        <div className="flex items-center gap-2 mt-0.5">
-          <p className="text-xs font-medium" style={{ color: lifeArea?.color ?? '#ffffff80' }}>
-            {lifeArea?.label ?? habit.area}
-          </p>
-          {habit.time_of_day && (
-            <span className="text-[10px] text-white/30 bg-white/5 px-1.5 py-0.5 rounded-full">
-              {habit.time_of_day === 'morning' ? '🌅' : habit.time_of_day === 'afternoon' ? '☀️' : '🌙'}
-              {' '}{habit.time_of_day === 'morning' ? 'Morning' : habit.time_of_day === 'afternoon' ? 'Afternoon' : 'Evening'}
-            </span>
-          )}
-        </div>
-        <div className="flex gap-1 mt-1.5">
-          {DAYS.map(d => (
-            <span
-              key={d.value}
-              className={`text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-medium ${
-                !Array.isArray(habit.days) || habit.days.length === 0 || habit.days.includes(d.value)
-                  ? 'bg-violet-600/60 text-white'
-                  : 'text-white/20'
-              }`}
-            >
-              {d.label}
-            </span>
-          ))}
-        </div>
+      <div className="flex gap-2">
+        {(['morning', 'afternoon', 'evening'] as const).map(val => (
+          <button key={val} type="button" onClick={() => setEditTimeOfDay(val)}
+            className={`flex-1 py-1.5 rounded-xl text-xs font-medium transition-colors ${
+              editTimeOfDay === val ? 'bg-violet-600 text-white' : 'bg-white/5 text-white/40 border border-white/10'
+            }`}>
+            {val === 'morning' ? '🌅' : val === 'afternoon' ? '☀️' : '🌙'} {val.charAt(0).toUpperCase() + val.slice(1)}
+          </button>
+        ))}
+      </div>
+      <div className="flex gap-2">
+        <button onClick={() => setEditingId(null)} className="flex-1 py-2 rounded-xl text-sm text-white/40 bg-white/5 border border-white/10">Cancel</button>
+        <button onClick={() => handleSaveEdit(habit.id)} disabled={editSaving} className="flex-1 py-2 rounded-xl text-sm text-white bg-violet-600 font-medium">
+          {editSaving ? 'Saving...' : 'Save'}
+        </button>
       </div>
     </div>
-    <button
-      onClick={() => handleDelete(habit.id)}
-      className="text-white/20 hover:text-red-400 transition-colors text-lg"
-    >
-      ✕
-    </button>
-  </div>
+  ) : (
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <div
+          className="flex h-12 w-12 items-center justify-center rounded-xl text-2xl shrink-0"
+          style={{ backgroundColor: `${lifeArea?.color}20`, border: `1px solid ${lifeArea?.color}40` }}
+        >
+          {lifeArea?.emoji ?? '⭐'}
+        </div>
+        <div>
+          <p className="text-white font-medium">{habit.title}</p>
+          <div className="flex items-center gap-2 mt-0.5">
+            <p className="text-xs font-medium" style={{ color: lifeArea?.color ?? '#ffffff80' }}>
+              {lifeArea?.label ?? habit.area}
+            </p>
+            {habit.time_of_day && (
+              <span className="text-[10px] text-white/30 bg-white/5 px-1.5 py-0.5 rounded-full">
+                {habit.time_of_day === 'morning' ? '🌅' : habit.time_of_day === 'afternoon' ? '☀️' : '🌙'}
+                {' '}{habit.time_of_day === 'morning' ? 'Morning' : habit.time_of_day === 'afternoon' ? 'Afternoon' : 'Evening'}
+              </span>
+            )}
+          </div>
+          <div className="flex gap-1 mt-1.5">
+            {DAYS.map(d => (
+              <span key={d.value}
+                className={`text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-medium ${
+                  !Array.isArray(habit.days) || habit.days.length === 0 || habit.days.includes(d.value)
+                    ? 'bg-violet-600/60 text-white' : 'text-white/20'
+                }`}>{d.label}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <button onClick={() => startEdit(habit)} className="text-white/20 hover:text-violet-400 transition-colors">✏️</button>
+        <button onClick={() => handleDelete(habit.id)} className="text-white/20 hover:text-red-400 transition-colors text-lg">✕</button>
+      </div>
+    </div>
+  )}
 </Card>
             )
           })}
