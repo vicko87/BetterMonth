@@ -13,11 +13,26 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Invalid message' }, { status: 400 });
         }
 
+      
+        const langMap: Record<string, string> = {
+            spa: 'Spanish',
+            eng: 'English',
+            rus: 'Russian',
+            fra: 'French',
+            deu: 'German',
+            ita: 'Italian',
+            por: 'Portuguese',
+            ukr: 'Ukrainian',
+            // agrega más si lo necesitas
+        };
+
         let languageHint = '';
         if (lang === 'spa') languageHint = 'Responde SOLO en español.';
         else if (lang === 'eng') languageHint = 'Respond ONLY in English.';
+        else if (lang && langMap[lang]) languageHint = `Respond ONLY in ${langMap[lang]}.`;
         else if (lang && lang.length === 3) languageHint = `Respond ONLY in ${lang}.`;
 
+        // Refuerza el prompt para consejos relevantes
         const systemPrompt = `You are a personal life coach assistant inside BetterMonth, a habit tracking app.
 You help users improve their habits and life balance based on their personal data.
 
@@ -28,6 +43,7 @@ Guidelines:
 - Be concise, warm, and motivating
 - Give specific, actionable advice
 - Reference the user's actual data when relevant
+- If the user asks about a specific topic (e.g. weight loss, sports, reading), focus your advice on that topic
 - Keep responses under 150 words
 - Respond in the same language the user writes in
 ${languageHint}`;
