@@ -274,7 +274,7 @@ function toggleDay(d: number) {
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">
         <div
-          className="flex h-12 w-12 items-center justify-center rounded-xl text-2xl shrink-0"
+          className="flex h-12 w-12 items-center justify-center rounded-xl text-2xl flex-shrink-0"
           style={{ backgroundColor: `${lifeArea?.color}20`, border: `1px solid ${lifeArea?.color}40` }}
         >
           {lifeArea?.emoji ?? '⭐'}

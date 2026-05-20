@@ -14,6 +14,7 @@
     "@supabase/supabase-js": "^2.102.1",
     "canvas-confetti": "^1.9.4",
     "framer-motion": "^12.38.0",
+    "franc-min": "^6.2.0",
     "groq-sdk": "^1.2.0",
     "lottie-react": "^2.4.1",
     "lucide-react": "^1.16.0",
