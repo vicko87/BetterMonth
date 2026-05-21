@@ -14,9 +14,34 @@ import { Camera } from "lucide-react"
 
 
 export default function ProfilePage() {
+
+
+    async function registerPush() {
+        if (!('serviceWorker' in navigator)) {
+            alert('Push notifications not supported');
+            return;
+        }
+        const reg = await navigator.serviceWorker.register('/sw.js');
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+            alert('You must allow notifications');
+            return;
+        }
+        const sub = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: '<TU_PUBLIC_VAPID_KEY>'
+        });
+        await fetch('/api/save-push', {
+            method: 'POST',
+            body: JSON.stringify({ reminderTime, subscription: sub }),
+            headers: { 'Content-Type': 'application/json' }
+        });
+        alert('Push notifications enabled!');
+    }
     const router = useRouter()
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
+    const [reminderTime, setReminderTime] = useState('08:00')
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
     const [focusAreas, setFocusAreas] = useState<string[]>([])
     const [editing, setEditing] = useState(false)
@@ -29,6 +54,8 @@ export default function ProfilePage() {
     const { habits } = useHabits()
     const { streak } = useStreak()
     const { xp, level, levelLabel} = useXP()
+
+    
 
     useEffect(() => {
         async function fetchProfile() {
@@ -223,10 +250,28 @@ export default function ProfilePage() {
                         </Card>
                     )}
 
-                    <button onClick={handleLogout}
-                        className="flex items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/20">
-                        <span>🚪</span> Log out
-                    </button>
+                                        {/* Notificaciones push: recordatorio diario */}
+                                        <Card>
+                                                <label className="block text-white/70 mb-1">Reminder time</label>
+                                                <input
+                                                    type="time"
+                                                    value={reminderTime}
+                                                    onChange={e => setReminderTime(e.target.value)}
+                                                    className="rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-white outline-none mb-2"
+                                                />
+                                                <button
+                                                    onClick={registerPush}
+                                                    className="rounded-xl bg-violet-600 hover:bg-violet-500 px-5 py-3 text-white font-medium mt-2"
+                                                >
+                                                    Enable daily push notifications
+                                                </button>
+                                        </Card>
+
+                                        <button onClick={handleLogout}
+                                                className="flex items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/20">
+                                                <span>🚪</span> Log out
+                                        </button>
+
                 </div>
             )}
         </PageWrapper> 
