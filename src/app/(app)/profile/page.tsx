@@ -10,6 +10,7 @@ import { useHabits } from "@/hooks/useHabits"
 import { useStreak } from "@/hooks/useStreak"
 import { useXP } from "@/hooks/useXP"
 import { Camera } from "lucide-react"
+import { urlBase64ToUint8Array } from '@/lib/urlBase64ToUint8Array'
 
 
 
@@ -27,15 +28,29 @@ export default function ProfilePage() {
             alert('You must allow notifications');
             return;
         }
+        // Usa la función de conversión y tu clave pública VAPID
+       const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!;
+       console.log('VAPID Key:', vapidPublicKey);
+        const convertedKey = urlBase64ToUint8Array(vapidPublicKey);
         const sub = await reg.pushManager.subscribe({
             userVisibleOnly: true,
-            applicationServerKey: '<TU_PUBLIC_VAPID_KEY>'
+            applicationServerKey: convertedKey
         });
-        await fetch('/api/save-push', {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) {
+            alert('You must be logged in to enable notifications');
+            return;
+        }
+        const res = await fetch('/api/save-push', {
             method: 'POST',
-            body: JSON.stringify({ reminderTime, subscription: sub }),
+            body: JSON.stringify({ reminderTime, subscription: sub, accessToken: session.access_token }),
             headers: { 'Content-Type': 'application/json' }
         });
+        if (!res.ok) {
+            const err = await res.json();
+            alert('Error saving push subscription: ' + err.error);
+            return;
+        }
         alert('Push notifications enabled!');
     }
     const router = useRouter()
