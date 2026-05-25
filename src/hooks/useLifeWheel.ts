@@ -25,7 +25,7 @@ export function useLifeWheel() {
         .from('life_wheel_entries')
         .select('health, work, family, friends, finances, growth, leisure, relationships')
         .eq('user_id', user.id)
-        .single()
+        .maybeSingle()
 
       const baseValues = manual ? (manual as LifeWheelValues) : { ...DEFAULT }
 

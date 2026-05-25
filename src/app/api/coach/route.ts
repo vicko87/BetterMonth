@@ -7,7 +7,7 @@ const openai = new Groq({
 
 export async function POST(req: NextRequest) {
     try {
-        const { message, context, lang } = await req.json();
+        const { message, context, lang, history } = await req.json();
 
         if (!message || typeof message !== 'string') {
             return NextResponse.json({ error: 'Invalid message' }, { status: 400 });
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
             ita: 'Italian',
             por: 'Portuguese',
             ukr: 'Ukrainian',
-            // agrega más si lo necesitas
+           
         };
 
         let languageHint = '';
@@ -48,10 +48,16 @@ Guidelines:
 - Respond in the same language the user writes in
 ${languageHint}`;
 
+        const historyMessages = (history ?? []).slice(-10).map((m: { role: string; content: string }) => ({
+            role: m.role as 'user' | 'assistant',
+            content: m.content,
+        }))
+
         const response = await openai.chat.completions.create({
             model: 'llama-3.1-8b-instant',
             messages: [
                 { role: 'system', content: systemPrompt },
+                ...historyMessages,
                 { role: 'user', content: message },
             ],
             max_tokens: 300,
