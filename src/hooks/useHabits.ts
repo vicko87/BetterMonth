@@ -9,7 +9,9 @@ export interface Habit {
     frequency: string
     created_at: string
     days: number[]
-      time_of_day: string 
+    time_of_day: string
+    goal_value: number | null
+    goal_unit: string | null
 }
 
 export function useHabits() {

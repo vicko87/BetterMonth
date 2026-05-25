@@ -52,11 +52,15 @@ export default function HabitsPage() {
     const [saving, setSaving] = useState(false)
     const [days, setDays] = useState<number[]>([])
     const [timeOfDay, setTimeOfDay] = useState<'morning' | 'afternoon' | 'evening'>('morning')
+    const [goalValue, setGoalValue] = useState<string>('')
+    const [goalUnit, setGoalUnit] = useState<string>('')
     const [editingId, setEditingId] = useState<string | null>(null)
     const [editTitle, setEditTitle] = useState('')
     const [editArea, setEditArea] = useState('health')
     const [editDays, setEditDays] = useState<number[]>([])
     const [editTimeOfDay, setEditTimeOfDay] = useState<'morning' | 'afternoon' | 'evening'>('morning')
+    const [editGoalValue, setEditGoalValue] = useState<string>('')
+    const [editGoalUnit, setEditGoalUnit] = useState<string>('')
     const [editSaving, setEditSaving] = useState(false)
 
     function toggleEditDay(d: number) {
@@ -69,6 +73,8 @@ export default function HabitsPage() {
         setEditArea(habit.area)
         setEditTimeOfDay(habit.time_of_day as 'morning' | 'afternoon' | 'evening')
         setEditDays(habit.days ?? [])
+        setEditGoalValue(habit.goal_value != null ? String(habit.goal_value) : '')
+        setEditGoalUnit(habit.goal_unit ?? '')
     }
 
     async function handleSaveEdit(id: string) {
@@ -78,8 +84,18 @@ export default function HabitsPage() {
             area: editArea,
             days: editDays,
             time_of_day: editTimeOfDay,
+            goal_value: editGoalValue ? parseInt(editGoalValue) : null,
+            goal_unit: editGoalUnit.trim() || null,
         }).eq('id', id)
-        setLocalHabits(prev => prev.map(h => h.id === id ? { ...h, title: editTitle.trim(), area: editArea, days: editDays, time_of_day: editTimeOfDay } : h))
+        setLocalHabits(prev => prev.map(h => h.id === id ? {
+            ...h,
+            title: editTitle.trim(),
+            area: editArea,
+            days: editDays,
+            time_of_day: editTimeOfDay,
+            goal_value: editGoalValue ? parseInt(editGoalValue) : null,
+            goal_unit: editGoalUnit.trim() || null,
+        } : h))
         setEditingId(null)
         setEditSaving(false)
     }
@@ -108,6 +124,8 @@ function toggleDay(d: number) {
             area,
             days,
             time_of_day: timeOfDay,
+            goal_value: goalValue ? parseInt(goalValue) : null,
+            goal_unit: goalUnit.trim() || null,
         }).select().single()
 
         if (newHabit) {
@@ -117,6 +135,8 @@ function toggleDay(d: number) {
         setTitle('')
         setDays([])
         setTimeOfDay('morning')
+        setGoalValue('')
+        setGoalUnit('')
         setSaving(false)
     }
 
@@ -211,6 +231,26 @@ function toggleDay(d: number) {
               ))}
             </div>
           </div>
+          <div>
+            <label className="text-xs text-white/40 mb-1 block">Goal (optional)</label>
+            <div className="flex gap-2">
+              <input
+                type="number"
+                min={1}
+                placeholder="e.g. 20"
+                value={goalValue}
+                onChange={(e) => setGoalValue(e.target.value)}
+                className="w-24 rounded-xl bg-white/5 border border-white/10 px-3 py-3 text-white placeholder-white/20 outline-none focus:border-violet-500 transition-colors"
+              />
+              <input
+                type="text"
+                placeholder="e.g. min, pages, glasses"
+                value={goalUnit}
+                onChange={(e) => setGoalUnit(e.target.value)}
+                className="flex-1 rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-white placeholder-white/20 outline-none focus:border-violet-500 transition-colors"
+              />
+            </div>
+          </div>
           <Button size="lg" disabled={saving}>
             {saving ? 'Saving...' : 'Add habit'}
           </Button>
@@ -264,6 +304,23 @@ function toggleDay(d: number) {
         ))}
       </div>
       <div className="flex gap-2">
+        <input
+          type="number"
+          min={1}
+          placeholder="Goal"
+          value={editGoalValue}
+          onChange={e => setEditGoalValue(e.target.value)}
+          className="w-20 rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-white text-sm outline-none focus:border-violet-500"
+        />
+        <input
+          type="text"
+          placeholder="unit (min, pages…)"
+          value={editGoalUnit}
+          onChange={e => setEditGoalUnit(e.target.value)}
+          className="flex-1 rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-white text-sm outline-none focus:border-violet-500"
+        />
+      </div>
+      <div className="flex gap-2">
         <button onClick={() => setEditingId(null)} className="flex-1 py-2 rounded-xl text-sm text-white/40 bg-white/5 border border-white/10">Cancel</button>
         <button onClick={() => handleSaveEdit(habit.id)} disabled={editSaving} className="flex-1 py-2 rounded-xl text-sm text-white bg-violet-600 font-medium">
           {editSaving ? 'Saving...' : 'Save'}
@@ -285,12 +342,19 @@ function toggleDay(d: number) {
             <p className="text-xs font-medium" style={{ color: lifeArea?.color ?? '#ffffff80' }}>
               {lifeArea?.label ?? habit.area}
             </p>
+            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
             {habit.time_of_day && (
               <span className="text-[10px] text-white/30 bg-white/5 px-1.5 py-0.5 rounded-full">
                 {habit.time_of_day === 'morning' ? '🌅' : habit.time_of_day === 'afternoon' ? '☀️' : '🌙'}
                 {' '}{habit.time_of_day === 'morning' ? 'Morning' : habit.time_of_day === 'afternoon' ? 'Afternoon' : 'Evening'}
               </span>
             )}
+            {habit.goal_value != null && (
+              <span className="text-[10px] text-violet-300 bg-violet-600/20 px-1.5 py-0.5 rounded-full">
+                🎯 {habit.goal_value} {habit.goal_unit ?? ''}
+              </span>
+            )}
+            </div>
           </div>
           <div className="flex gap-1 mt-1.5">
             {DAYS.map(d => (

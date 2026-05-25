@@ -10,10 +10,13 @@ export interface DailyTask {
     user_id: string
     date: string
     completed: boolean
+    goal_progress: number | null
     habits: {
         title: string
         area: string
-           time_of_day: string 
+        time_of_day: string
+        goal_value: number | null
+        goal_unit: string | null
     }
 }
 
@@ -58,7 +61,7 @@ export function useTasks() {
             //cargar tareas de hoy con nombre del hábito
             const { data: tasksData } = await supabase
                 .from('daily_tasks')
-                .select(`*, habits (title,  area, time_of_day)`)
+                .select(`*, habits (title, area, time_of_day, goal_value, goal_unit)`)
                 .eq('user_id', user.id)
                 .eq('date', today)  
 
@@ -80,5 +83,18 @@ export function useTasks() {
         )
     }
 
-    return { tasks, loading, toggleTask }
+    async function updateTaskProgress(id: string, progress: number, goalValue: number) {
+        const completed = progress >= goalValue
+        await supabase.from('daily_tasks')
+            .update({ goal_progress: progress, completed })
+            .eq('id', id)
+
+        setTasks((prev) =>
+            prev.map((t) =>
+                t.id === id ? { ...t, goal_progress: progress, completed } : t
+            )
+        )
+    }
+
+    return { tasks, loading, toggleTask, updateTaskProgress }
 }

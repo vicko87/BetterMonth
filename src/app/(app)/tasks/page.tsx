@@ -33,7 +33,7 @@ function getWeekDays() {
 const DAY_LABELS = ['D', 'L', 'M', 'X', 'J', 'V', 'S']
 
 export default function TasksPage() {
-  const { tasks, loading, toggleTask } = useTasks()
+  const { tasks, loading, toggleTask, updateTaskProgress } = useTasks()
   const [activeSlot, setActiveSlot] = useState<TimeSlot>(() => {
     const h = new Date().getHours()
     if (h < 12) return 'morning'
@@ -144,6 +144,60 @@ export default function TasksPage() {
       <div className="flex flex-col gap-3">
         {slotTasks.map((task) => {
           const lifeArea = LIFE_AREAS.find((a) => a.key === task.habits?.area)
+          const hasGoal = task.habits?.goal_value != null
+          const goalValue = task.habits?.goal_value ?? 0
+          const goalUnit = task.habits?.goal_unit ?? ''
+          const progress = task.goal_progress ?? 0
+
+          if (hasGoal) {
+            return (
+              <Card key={task.id} className={task.completed ? 'opacity-60' : ''}>
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div
+                      className="flex h-10 w-10 items-center justify-center rounded-xl text-xl flex-shrink-0"
+                      style={{ backgroundColor: `${lifeArea?.color}20`, border: `1px solid ${lifeArea?.color}40` }}
+                    >
+                      {lifeArea?.emoji ?? '⭐'}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className={`font-medium truncate ${task.completed ? 'line-through text-white/40' : 'text-white'}`}>
+                        {task.habits?.title}
+                      </p>
+                      <p className="text-xs mt-0.5" style={{ color: lifeArea?.color ?? '#ffffff60' }}>
+                        {lifeArea?.label ?? task.habits?.area}
+                      </p>
+                      {/* Progress bar */}
+                      <div className="mt-2 flex items-center gap-2">
+                        <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
+                          <div
+                            className="h-1.5 rounded-full bg-violet-500 transition-all duration-300"
+                            style={{ width: `${Math.min((progress / goalValue) * 100, 100)}%` }}
+                          />
+                        </div>
+                        <span className="text-xs text-white/50 shrink-0">
+                          {progress}/{goalValue} {goalUnit}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  {/* +/- controls */}
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      onClick={() => updateTaskProgress(task.id, Math.max(0, progress - 1), goalValue)}
+                      className="w-8 h-8 rounded-full bg-white/5 border border-white/10 text-white/60 hover:text-white flex items-center justify-center text-lg font-bold transition-colors"
+                      disabled={progress <= 0}
+                    >−</button>
+                    <button
+                      onClick={() => updateTaskProgress(task.id, progress + 1, goalValue)}
+                      className="w-8 h-8 rounded-full bg-violet-600 hover:bg-violet-500 text-white flex items-center justify-center text-lg font-bold transition-colors"
+                    >+</button>
+                  </div>
+                </div>
+              </Card>
+            )
+          }
+
           return (
             <button
               key={task.id}
