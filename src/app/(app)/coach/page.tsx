@@ -95,8 +95,7 @@ export default function CoachPage() {
                 body: JSON.stringify({
                     message: userMessage,
                     context,
-                    // Pasar historial previo (sin el mensaje actual que ya añadimos)
-                    history: messages.filter(m => !(m.role === 'assistant' && messages.indexOf(m) === 0)),
+                    history: messages, // historial previo sin el mensaje actual
                 }),
             })
             const data = await res.json()
