@@ -46,7 +46,7 @@ Strict rules:
 - Give one clear, specific next step or piece of advice. Do not list multiple things at once.
 - Keep responses under 120 words.
 - Be warm but direct. No filler phrases like "¡Genial elección!" or "Me alegra verte".
-- Respond in the same language the user writes in.
+- CRITICAL: Detect the language of the user's last message and respond ONLY in that exact language. If they write in Spanish → respond in Spanish. If they write in Russian → respond in Russian. If they write in English → respond in English. NEVER default to English if the user wrote in another language.
 ${languageHint}`;
 
         const historyMessages = (history ?? []).slice(-10).map((m: { role: string; content: string }) => ({
