@@ -26,8 +26,9 @@ export function useBadges() {
 
             const { data: wheelEntries } = await supabase
                 .from('life_wheel_entries')
-                .select('area, value')
+                .select('health, work, family, friends, finances, growth, leisure, relationships')
                 .eq('user_id', user.id)
+                .maybeSingle()
 
             // --- Badge 1: First week complete 🏆 ---
             const byDate: Record<string, { total: number; done: number }> = {}
@@ -64,13 +65,12 @@ export function useBadges() {
             const streak7 = streak >= 7
 
             // --- Badge 3: Balanced Life Wheel ⚖️ ---
-            const areas = wheelEntries ?? []
             let balanced = false
-            if (areas.length >= 8) {
-                const values = areas.map((a) => a.value)
+            if (wheelEntries) {
+                const values = Object.values(wheelEntries) as number[]
                 const min = Math.min(...values)
                 const max = Math.max(...values)
-                balanced = min >= 3 && (max - min) <= 3
+                balanced = values.length === 8 && min >= 3 && (max - min) <= 3
             }
 
             setBadges([
